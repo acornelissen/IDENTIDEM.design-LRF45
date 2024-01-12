@@ -2,6 +2,8 @@
 
 This is the Circuitpython 8.x code that powers the LRF45: a (mostly) 3D-printed, LiDAR powered, electronically-coupled large format rangefinder. It also has a built-in light-meter!
 
+[The build guide and 3D-printer files are all on Printables](https://www.printables.com/model/718784-lrf45-a-large-format-4x5-rangefinder).
+
 ## Hardware
 - 1 x Adafruit Feather RP2040
 - 1 x Adafruit MiniBoost 5V @ 1A (this is to power the TF-LUNA, which requires 5v operating voltage)
