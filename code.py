@@ -21,8 +21,8 @@ from ulab import numpy
 
 # Hardware init
 # =============================================================================
-# Battery monitor pin (ADC0)
-adc_batt = analogio.AnalogIn(board.A0)
+# Battery monitor pin (ADC3)
+adc_batt = analogio.AnalogIn(board.A3)
 
 # Create the I2C and UART interface.
 i2c = board.STEMMA_I2C()
