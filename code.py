@@ -82,10 +82,12 @@ CLOSE_FOCUS_CM_LG = 50 # Close focus distance in cm
 INF_FOCUS_CM_LG = 60 # Infinity focus distance in cm
 
 # Interface constants
-FRAME_LENGTH = 128 #
+FRAME_LENGTH = 128
 FRAME_HEIGHT = 99
 FRAME_OFFSET_X = 0
 FRAME_OFFSET_Y = 28
+LENS_OFFSET = 1035 # For parallax correction
+LENS_DIVISOR = 1375 # For parallax correction
 CIRCLE_X = 68
 CIRCLE_Y = 80
 CIRCLE_X_MAX = 85
@@ -101,11 +103,11 @@ def load_config(state):
         with open("config.json", "r") as f:
             loaded_config = json.load(f)
 
-            state.iso = loaded_config['iso']
-            state.iso_pos = loaded_config['iso_pos']
-            state.aperture = loaded_config['aperture']
-            state.aperture_pos = loaded_config['aperture_pos']
-            state.rf_mode = loaded_config['rf_mode']
+            state.iso = loaded_config.get('iso')
+            state.iso_pos = loaded_config.get('iso_pos')
+            state.aperture = loaded_config.get('aperture')
+            state.aperture_pos = loaded_config.get('aperture_pos')
+            state.rf_mode = loaded_config.get('rf_mode')
     except Exception as e:
         print("Could not load config")
         print(e)
@@ -127,10 +129,16 @@ def save_config(state):
 
 
 # Calculate the radius of the circle with a formula that will make it converge as two numbers (object distance and lens focus distance) get closer together
-def calculate_radius(x, y, k, b):
-    d = abs(x - y)  # Calculate the absolute difference
-    D = k * d + b  # Calculate the diameter
-    return D / 2  # Return Radius
+def calculate_radius(object_distance, focus_distance, start_radius, min_radius):
+    # Calculate the absolute difference between sensor readings
+    difference = abs(object_distance - focus_distance)
+    
+    # Calculate the diameter using the given formula
+    diameter = start_radius * difference + min_radius
+    
+    # Calculate and return the radius
+    radius = diameter / 2
+    return radius
 
 # Generic function to return distance in mm, cm, and m
 def format_distance(distance):
@@ -229,7 +237,7 @@ class Interface:
         while True:
             if state.current_lens and state.current_distance:
                 radius = round(calculate_radius(state.current_distance_cm, state.current_lens_cm, 1, 1))
-                mag = (state.current_lens_cm+1035) / 1375
+                mag = (state.current_lens_cm + LENS_OFFSET) / LENS_DIVISOR
 
                 new_frame_l = round(FRAME_LENGTH * mag)
                 new_frame_h = round(FRAME_HEIGHT * mag)
