@@ -59,7 +59,7 @@ display_bus.send(0xC9, b"")  # Bus command to mirror display
 # Constants
 # =============================================================================
 # Aperture and ISO constants - change this to match your lens and film stocks
-APERTURES = [1.8, 2, 2.8, 4.5, 5.6, 8, 11, 16, 22, 32]
+APERTURES = [1.8, 2, 2.8, 4.5, 5.6, 8, 11, 16, 22, 32, 45, 64]
 ISOS = [100, 125, 400, 800, 1600, 3200]
 
 # Rangefinder constants and variables
@@ -129,15 +129,20 @@ def save_config(state):
 
 
 # Calculate the radius of the circle with a formula that will make it converge as two numbers (object distance and lens focus distance) get closer together
-def calculate_radius(object_distance, focus_distance, start_radius, min_radius):
-    # Calculate the absolute difference between sensor readings
-    difference = abs(object_distance - focus_distance)
-    
-    # Calculate the diameter using the given formula
-    diameter = start_radius * difference + min_radius
-    
-    # Calculate and return the radius
-    radius = diameter / 2
+def calculate_radius(object_distance, lens_focus_distance, max_radius, min_radius):
+    # Calculate the absolute difference between the object distance and the lens focus distance
+    difference = abs(object_distance - lens_focus_distance)
+
+    # Calculate the radius as a linear interpolation between min_radius and max_radius
+    # based on the difference. If difference is 0, radius is min_radius. If difference is max_radius, radius is max_radius.
+    radius = ((max_radius - min_radius) * difference) / max_radius + min_radius
+
+    # Ensure the radius doesn't exceed max_radius
+    radius = min(radius, max_radius)
+
+    # Ensure the radius doesn't fall below min_radius
+    radius = max(radius, min_radius)
+
     return radius
 
 # Generic function to return distance in mm, cm, and m
@@ -236,7 +241,7 @@ class Interface:
     async def update(self, state, splash):
         while True:
             if state.current_lens and state.current_distance:
-                radius = round(calculate_radius(state.current_distance_cm, state.current_lens_cm, 1, 1))
+                radius = round(calculate_radius(state.current_distance_cm, state.current_lens_cm, ((FRAME_HEIGHT/2) - 4), 1))
                 mag = (state.current_lens_cm + LENS_OFFSET) / LENS_DIVISOR
 
                 new_frame_l = round(FRAME_LENGTH * mag)
@@ -250,9 +255,6 @@ class Interface:
                 # Focus reticle / indicator
                 if radius != state.prev_rad:
                     state.prev_rad = radius
-
-                    if radius >= (FRAME_HEIGHT / 2):
-                        radius = (FRAME_HEIGHT / 2) - 4
 
                     if radius <= 1 or state.current_lens == "Inf.":
                         radius = 1
@@ -399,16 +401,16 @@ async def get_lens(state, interface):
             if lr.proximity:
                 measures.append(lr.proximity)
 
-        state.current_lens_cm = math.floor(numpy.mean(measures))
+        sensor_reading = math.floor(numpy.mean(measures))
 
         # Uncomment to debug or calibrate lens sensor - raw reading + offset
-        print(f"Lens sensor:{state.current_lens_cm}")
+        #print(f"Lens sensor:{state.current_lens_cm}")
 
         # Clamp lens sensor reading to min and max
-        if state.current_lens_cm <= CLOSE_FOCUS:
-            state.current_lens_cm = CLOSE_FOCUS
-        elif state.current_lens_cm >= INF_FOCUS:
-            state.current_lens_cm = INF_FOCUS 
+        if sensor_reading  <= CLOSE_FOCUS:
+            sensor_reading  = CLOSE_FOCUS
+        elif sensor_reading  >= INF_FOCUS:
+            sensor_reading  = INF_FOCUS 
 
         # Calculate distance from lens sensor reading by interpolating between close focus and infinity focus
         # To calibrate this, for both infinity and close focus:
@@ -419,19 +421,21 @@ async def get_lens(state, interface):
         # 4. Set CLOSE_FOCUS_CM and INF_FOCUS_CM to the distance in cm measured from LiDAR
         # 7. Test your new values by checking focus at infinity and close focus, as well as a few points in between
         # 8. Repeat until you get it right - tedious, but worth it once you dial it in!
-        proportion = (state.current_lens_cm - INF_FOCUS) / (CLOSE_FOCUS- INF_FOCUS)
+        proportion = (sensor_reading - INF_FOCUS) / (CLOSE_FOCUS- INF_FOCUS)
         dist = round(INF_FOCUS_CM + proportion * (CLOSE_FOCUS_CM - INF_FOCUS_CM), 2)
         if state.rf_mode == "lomograflok":
             dist = round(INF_FOCUS_CM_LG + proportion * (CLOSE_FOCUS_CM_LG - INF_FOCUS_CM_LG), 2)
+            
+        state.current_lens_cm = dist
 
         # Uncomment to debug or calibrate lens sensor - distance in cm
-        print(f"Distance: {dist}")
+        #print(f"Distance: {dist}")
 
         # Set current lens text
         state.current_lens = "..."
-        if state.current_lens_cm <= CLOSE_FOCUS and state.rf_mode == "normal":
+        if state.current_lens_cm <= CLOSE_FOCUS_CM and state.rf_mode == "normal":
             state.current_lens =  f"{CLOSE_FOCUS_CM} cm"
-        elif state.current_lens_cm >= INF_FOCUS and state.rf_mode == "normal":
+        elif state.current_lens_cm >= INF_FOCUS_CM and state.rf_mode == "normal":
             state.current_lens = "Inf."
         else:
             state.current_lens = format_distance(dist)
