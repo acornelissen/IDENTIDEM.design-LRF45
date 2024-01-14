@@ -50,7 +50,7 @@ INF_FOCUS_CM_LG = 60 # Infinity focus distance in cm
 
 How do you get these values? A little bit of leg-work is required.
 
-USE A TRIPID AND A FOCUS TARGET like https://www.squit.co.uk/photo/focuschart.html
+USE A TRIPOD AND A FOCUS TARGET like https://www.squit.co.uk/photo/focuschart.html
 1. Using ground glass, focus to target at its closest and infinity, lens wide open, and take note of the LiDAR reading where the target is in focus - see `code.py:388`
 2. Take note of the lens sensor reading the helicoid's minimum extension (infinity) and maximum extension (close focus)
 3. Set `CLOSE_FOCUS` and `INF_FOCUS` to those values 
