@@ -74,8 +74,11 @@ INF_FOCUS = 875 # Infinity focus sensor reading
 """
 CLOSE_FOCUS_CM = 85 # Close focus distance in cm
 CLOSE_FOCUS = 27 # Close focus sensor reading
-INF_FOCUS_CM = 560 # Infinity focus distance in cm
 INF_FOCUS = 181 # Infinity focus sensor reading
+CLOSE_FOCUS_CM = 85  # Close focus distance in cm
+CLOSE_FOCUS = 71 # Close focus sensor reading
+INF_FOCUS_CM = 780 # Infinity focus distance in cm
+INF_FOCUS = 860 # Infinity focus sensor reading
 
 # Lomograflok rangefinder constants and variables
 CLOSE_FOCUS_CM_LG = 50 # Close focus distance in cm
@@ -241,7 +244,6 @@ class Interface:
     async def update(self, state, splash):
         while True:
             if state.current_lens and state.current_distance:
-                radius = round(calculate_radius(state.current_distance_cm, state.current_lens_cm, ((FRAME_HEIGHT/2) - 4), 1))
                 mag = (state.current_lens_cm + LENS_OFFSET) / LENS_DIVISOR
 
                 new_frame_l = round(FRAME_LENGTH * mag)
@@ -253,6 +255,7 @@ class Interface:
                     new_frame_h = FRAME_HEIGHT
 
                 # Focus reticle / indicator
+                radius = round(calculate_radius(state.current_distance_cm, state.current_lens_cm, ((new_frame_h/2) - 4), 1))
                 if radius != state.prev_rad:
                     state.prev_rad = radius
 
@@ -348,7 +351,7 @@ async def get_shutter_speed(state, interface):
             print_speed = "Dark!"
         else:
             speed = round(((state.aperture * state.aperture) * K) / (lux * state.iso), 3)
-                
+
             speed_ranges = [
                 (0.001, 0.002, "1/1000"),
                 (0.002, 0.004, "1/500"),
@@ -362,7 +365,7 @@ async def get_shutter_speed(state, interface):
                 (0.500, 1, "1/2")
             ]
 
-            print_speed = f"{speed}s"
+            print_speed = f"{round(speed, 1)}s"
 
             for lower, upper, print_speed_range in speed_ranges:
                 if lower <= speed < upper:
@@ -388,7 +391,7 @@ async def get_distance(state, interface):
 
         # Uncomment to debug or calibrate LiDAR
         # print(f"Distance: {state.current_distance_cm}")
-            
+
         await asyncio.sleep(0.5)
 
 # Get distance from lens sensor
@@ -404,32 +407,32 @@ async def get_lens(state, interface):
         sensor_reading = math.floor(numpy.mean(measures))
 
         # Uncomment to debug or calibrate lens sensor - raw reading + offset
-        #print(f"Lens sensor:{state.current_lens_cm}")
+        #print(f"Lens sensor:{sensor_reading}")
 
         # Clamp lens sensor reading to min and max
         if sensor_reading  <= CLOSE_FOCUS:
             sensor_reading  = CLOSE_FOCUS
         elif sensor_reading  >= INF_FOCUS:
-            sensor_reading  = INF_FOCUS 
+            sensor_reading  = INF_FOCUS
 
         # Calculate distance from lens sensor reading by interpolating between close focus and infinity focus
         # To calibrate this, for both infinity and close focus:
-        # USE A TRIPOD AND A FOCUS TARGET like https://www.squit.co.uk/photo/focuschart.html
+        # USE A TRIPID AND A FOCUS TARGET like https://www.squit.co.uk/photo/focuschart.html
         # 1. Using ground glass, focus to target at its closest and infinity, lens wide open, and take note of the LiDAR reading where the target is in focus - see line 388
         # 2. Take note of the lens sensor reading the helicoids minimum extension (infinity) and maximum extension (close focus)
-        # 3. Set CLOSE_FOCUS and INF_FOCUS to those values 
+        # 3. Set CLOSE_FOCUS and INF_FOCUS to those values
         # 4. Set CLOSE_FOCUS_CM and INF_FOCUS_CM to the distance in cm measured from LiDAR
         # 7. Test your new values by checking focus at infinity and close focus, as well as a few points in between
         # 8. Repeat until you get it right - tedious, but worth it once you dial it in!
-        proportion = (sensor_reading - INF_FOCUS) / (CLOSE_FOCUS- INF_FOCUS)
+        proportion = (sensor_reading - INF_FOCUS) / (CLOSE_FOCUS - INF_FOCUS)
         dist = round(INF_FOCUS_CM + proportion * (CLOSE_FOCUS_CM - INF_FOCUS_CM), 2)
         if state.rf_mode == "lomograflok":
             dist = round(INF_FOCUS_CM_LG + proportion * (CLOSE_FOCUS_CM_LG - INF_FOCUS_CM_LG), 2)
-            
+
         state.current_lens_cm = dist
 
         # Uncomment to debug or calibrate lens sensor - distance in cm
-        #print(f"Distance: {dist}")
+        #print(f"Distance: {dist} vs {state.current_distance_cm}")
 
         # Set current lens text
         state.current_lens = "..."
