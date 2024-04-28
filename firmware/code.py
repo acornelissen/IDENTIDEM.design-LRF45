@@ -335,10 +335,13 @@ async def monitor_buttons(state, interface):
                     if key_nr == 0:
                         if state.button_duration >= 10:
                             state.rf_mode = "lomograflok" if state.rf_mode == "normal" else "normal"
-                        elif state.button_duration >= 5:
-                            cycle_iso(state, interface)
                         else:
                             cycle_aperture(state, interface, "up")
+                    if key_nr == 1:
+                        if state.button_duration >= 5:
+                            cycle_iso(state, interface)
+                        else:
+                            cycle_aperture(state, interface, "down")
                     save_config(state)
             await asyncio.sleep(0)
 

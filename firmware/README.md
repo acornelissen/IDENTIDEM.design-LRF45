@@ -11,12 +11,13 @@ This is the Circuitpython 8.x code that powers the LRF45: a (mostly) 3D-printed,
 - 1 x Adafruit VCNL4040 Proximity and Lux Sensor
 - 1 x Adafruit BH1750 Light Sensor
 - 1 x Adafruit Monochrome 1.12" 128x128 OLED Graphic Display
-- 1 x 8mm Momentary Push Button Switch
+- 2 x 8mm Momentary Push Button Switch
 - 1 x 3-Position SPDT Slide Switch 10x5x5mm
 - 2 x 10k Ohm resistor
 - 2 x 100mm STEMMA QT cable
 - 1 x 400mm STEMMA QT cable
 - 1 x 3.7V 820mAh 653042 Lipo (30.5 x 44 x 6.8mm)
+- 1 x Custom LRF45 PCB
 
 ## Required CircuitPython 8.x Libraries
 - adafruit_bh1750

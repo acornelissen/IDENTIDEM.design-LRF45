@@ -1,0 +1,3 @@
+These are the Custom PCB files for the LRF45 PCB version. It's nothing special, just somewhere to neatly mount components and use JST connectors instead of having to solder wires directly to the Feather. It also adds a second push button for easier navigation of the UI. 
+
+One thing you might be wondering is, why is there a connector for a potentiometer? Currently unused, but the idea was to open up the possibillity of using a slide-potentiometer instead of optical sensor to measure lens extension. The STEP files include designs for just this, but I never tested it in practice. So it's up to you whether you want to try it or not. The other option is to use it as an additional input, seeing as it's just a connection to one of the ADC pins. 
