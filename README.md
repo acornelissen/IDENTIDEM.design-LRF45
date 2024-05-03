@@ -16,9 +16,9 @@ The LRF45 is a mostly 3D-printed camera with a LiDAR-powered digital rangefinder
 I really hope someone out there attempts to build this, and shoot with it. I want to see your makes, as well as your photos!
 I have a few example photos on Instagram:
 
-https://www.instagram.com/p/C1C5XITI7D1/
-https://www.instagram.com/p/C1MwscKobC5/
-https://www.instagram.com/p/C1XakoNo_7q/
-https://www.instagram.com/p/C1zOQ6SIrhM/
+- https://www.instagram.com/p/C1C5XITI7D1/
+- https://www.instagram.com/p/C1MwscKobC5/
+- https://www.instagram.com/p/C1XakoNo_7q/
+- https://www.instagram.com/p/C1zOQ6SIrhM/
 
 The light leak in the first three posts has been fixed in the release version.
