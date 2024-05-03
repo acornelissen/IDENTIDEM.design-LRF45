@@ -1,5 +1,7 @@
 This is a camera that's been a long time coming. As far as I know, there's nothing quite like it out there. 
 
+🍺 <strong><a href="https://paypal.me/albertcor">Buy me a beer</a></strong> if you'd like to say thank you.
+
 The LRF45 is a mostly 3D-printed camera with a LiDAR-powered digital rangefinder that is electronically coupled to a sensor that reads the lens extension. Which makes this a lens-coupled, hand-held large-format rangefinder. It also has a built-in light meter!
 
 - It is designed for the Fujinon-W 105mm f5.6
