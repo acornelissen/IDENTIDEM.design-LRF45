@@ -24,3 +24,6 @@ https://www.instagram.com/p/C1XakoNo_7q/
 https://www.instagram.com/p/C1zOQ6SIrhM/
 
 The light leak in the first three posts has been fixed in the release version.
+
+---
+🍺 <strong><a href="https://paypal.me/albertcor">Buy me a beer</a></strong> if you'd like to say thank you.
